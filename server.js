@@ -3,7 +3,7 @@ const { ApolloServer, gql } = require('apollo-server-express');
 const cors = require('cors');
 const dotEnv = require('dotenv');
 //set env variables
-
+const { tasks, users } = require('./constants');
 dotEnv.config();
 
 const app = express();
@@ -17,24 +17,28 @@ app.use(express.json());
 const typeDefs = gql`
 	type Query {
 		greetings: String!
+		tasks: [Task!]
+		users: [User!]
 	}
 	type User {
-		id: ID!,
-		name: String!,
+		id: ID!
+		name: String!
 		email: String!
 		tasks: [Task!]
 	}
 	type Task {
-		id: ID!,
-		name: String!,
-		completed: Boolean!,
-		user: User!
+		id: ID!
+		name: String!
+		completed: Boolean!
+		userId: User!
 	}
 `;
 
 const resolvers = {
 	Query: {
 		greetings: () => 'Hello there',
+		tasks: () => tasks,
+		users: () => users,
 	},
 };
 
