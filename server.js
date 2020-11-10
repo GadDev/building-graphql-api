@@ -18,7 +18,9 @@ const typeDefs = gql`
 	type Query {
 		greetings: String!
 		tasks: [Task!]
+		task(id: ID!): Task
 		users: [User!]
+		user(id: ID!): User
 	}
 	type User {
 		id: ID!
@@ -30,15 +32,29 @@ const typeDefs = gql`
 		id: ID!
 		name: String!
 		completed: Boolean!
-		userId: User!
+		user: User!
 	}
 `;
 
 const resolvers = {
+	//Query reso
 	Query: {
 		greetings: () => 'Hello there',
 		tasks: () => tasks,
+		task: (_, args, cxt, info) => tasks.find((task) => task.id === args.id),
 		users: () => users,
+		user: (_, { id }, cxt, info) => users.find((user) => user.id === id),
+	},
+	//Field resolver
+	Task: {
+		user: (parent, args, ctx, info) => {
+			return users.find((user) => user.id === parent.userId);
+		},
+	},
+	User: {
+		tasks: (parent, args, ctx, info) => {
+			return tasks.filter((task) => task.userId === parent.id);
+		},
 	},
 };
 
