@@ -2,8 +2,9 @@ const express = require('express');
 const { ApolloServer, gql } = require('apollo-server-express');
 const cors = require('cors');
 const dotEnv = require('dotenv');
-//set env variables
-const { tasks, users } = require('./constants');
+
+//resolvers
+const resolvers = require('./resolvers');
 dotEnv.config();
 
 const app = express();
@@ -14,7 +15,9 @@ app.use(cors());
 //body parser middleware
 app.use(express.json());
 
+//Schema
 const typeDefs = gql`
+	# Root level type
 	type Query {
 		greetings: String!
 		tasks: [Task!]
@@ -30,7 +33,7 @@ const typeDefs = gql`
 	type Mutation {
 		createTask(input: createTaskInput!): Task
 	}
-
+	# Field type
 	type User {
 		id: ID!
 		name: String!
@@ -44,31 +47,6 @@ const typeDefs = gql`
 		user: User!
 	}
 `;
-
-const resolvers = {
-	//Query reso
-	Query: {
-		greetings: () => 'Hello there',
-		tasks: () => tasks,
-		task: (_, args, cxt, info) => tasks.find((task) => task.id === args.id),
-		users: () => users,
-		user: (_, { id }, cxt, info) => users.find((user) => user.id === id),
-	},
-	Mutation: {
-		createTask: (_, { input })
-	},
-	//Field resolver
-	Task: {
-		user: (parent, args, ctx, info) => {
-			return users.find((user) => user.id === parent.userId);
-		},
-	},
-	User: {
-		tasks: (parent, args, ctx, info) => {
-			return tasks.filter((task) => task.userId === parent.id);
-		},
-	},
-};
 
 const apolloServer = new ApolloServer({
 	typeDefs,
