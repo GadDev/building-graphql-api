@@ -22,6 +22,15 @@ const typeDefs = gql`
 		users: [User!]
 		user(id: ID!): User
 	}
+	input createTaskInput {
+		name: String!
+		completed: Boolean!
+		userId: ID!
+	}
+	type Mutation {
+		createTask(input: createTaskInput!): Task
+	}
+
 	type User {
 		id: ID!
 		name: String!
@@ -44,6 +53,9 @@ const resolvers = {
 		task: (_, args, cxt, info) => tasks.find((task) => task.id === args.id),
 		users: () => users,
 		user: (_, { id }, cxt, info) => users.find((user) => user.id === id),
+	},
+	Mutation: {
+		createTask: (_, { input })
 	},
 	//Field resolver
 	Task: {
